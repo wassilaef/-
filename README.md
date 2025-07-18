@@ -1,100 +1,98 @@
 # retardavion
+Prédiction du retard mensuel moyen des vols
+Chaîne complète Kedro + MLflow : depuis le nettoyage des données jusqu’au versioning du modèle.
+📂 Structure du projet
 
-[![Powered by Kedro](https://img.shields.io/badge/powered_by-kedro-ffc900?logo=kedro)](https://kedro.org)
+retardavion/
+├── conf/
+│   ├── base/
+│   │   ├── catalog.yml
+│   │   └── parameters.yml
+│   └── dev/  (configs spécifiques)
+├── data/
+│   ├── 03_primary/       # CSV brut
+│   └── 06_models/        # Sorties des pipelines
+│       ├── X_train.csv
+│       ├── X_test.csv
+│       ├── y_train.csv
+│       └── y_test.csv
+├── logs/                 # Fichiers de logs
+├── src/retardavion/
+│   ├── pipelines/
+│   │   ├── data_processing/
+│   │   │   ├── nodes.py
+│   │   │   └── pipeline.py
+│   │   └── data_training/
+│   │       ├── nodes.py
+│   │       └── pipeline.py
+│   ├── pipeline_registry.py
+│   └── __init__.py
+├── README.md
+└── pyproject.toml / requirements.txt
+🚀 Installation
 
-## Overview
-
-This is your new Kedro project, which was generated using `kedro 0.19.14`.
-
-Take a look at the [Kedro documentation](https://docs.kedro.org) to get started.
-
-## Rules and guidelines
-
-In order to get the best out of the template:
-
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a [data engineering convention](https://docs.kedro.org/en/stable/faq/faq.html#what-is-data-engineering-convention)
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
-
-## How to install dependencies
-
-Declare any dependencies in `requirements.txt` for `pip` installation.
-
-To install them, run:
-
-```
+Cloner le dépôt
+git clone <url-du-repo>
+cd retardavion
+Créer et activer l’environnement
+python3 -m venv venv
+source venv/bin/activate
+Installer les dépendances
 pip install -r requirements.txt
-```
+⚙️ Configuration
 
-## How to run your Kedro pipeline
+Catalog (conf/base/catalog.yml)
+Déclare les jeux de données :
+primary:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/primary.csv
+X_train:
+  type: pandas.CSVDataSet
+  filepath: data/06_models/X_train.csv
+# … et X_test, y_train, y_test
+Paramètres (conf/base/parameters.yml)
+test_ratio: 0.2
+target_column: "Retard mensuel moyen à l'arrivée des vols exploités par la Cie sur la relation (min)"
 
-You can run your Kedro project with:
+# MLflow
+automl_max_evals: 100
+log_to_mlflow: true
+experiment_id: "retard_avion_experiment"
+mlflow_server_uri: "http://127.0.0.1:5000"
+🔄 Pipelines Kedro
 
-```
-kedro run
-```
+1. Data Processing
+Nettoyage, encodage, split train/test.
+kedro run --pipeline data_processing
+preprocess_data → data/03_primary/primary.csv → DataFrame nettoyé
+encode_features → encode toutes les colonnes object
+split_dataset → génère X_train.csv, X_test.csv, y_train.csv, y_test.csv
+2. Data Training
+Recherche d’hyper‑paramètres, entraînement final, log vers MLflow + Model Registry.
+kedro run --pipeline data_training
+optimize_hyp (Hyperopt + RepeatedKFold) → meilleurs params
+train_model → entraînement LGBMRegressor
+auto_ml
+configure MLflow
+log : hyper‑params, RMSE train/test, baseline
+log modèle et l’enregistre dans le Model Registry (retard_avion_model)
+📊 MLflow
 
-## How to test your Kedro project
+Lancer le serveur
+mlflow ui --host 127.0.0.1 --port 5000
+Explorer
+Experiments : “retard_avion_experiment” → métriques, hyper‑params, artefacts
+Model Registry : versionner, promouvoir (Staging, Production)
+🧪 Tests à venir
 
-Have a look at the files `src/tests/test_run.py` and `src/tests/pipelines/data_science/test_pipeline.py` for instructions on how to write your tests. Run the tests as follows:
+Tests pré‑entraînement : cohérence de données, proportions, taille minimale…
+Tests post‑entraînement : comportement du modèle vs baseline, cas d’usage.
+📈 Résultats & Observations
 
-```
-pytest
-```
+RMSE train vs test comparé à une baseline (prédiction de la moyenne)
+Sur- et sous‑apprentissage observés via différence RMSE train/test
+🔜 Prochaines étapes
 
-To configure the coverage threshold, look at the `.coveragerc` file.
-
-## Project dependencies
-
-To see and update the dependency requirements for your project use `requirements.txt`. You can install the project requirements with `pip install -r requirements.txt`.
-
-[Further information about project dependencies](https://docs.kedro.org/en/stable/kedro_project_setup/dependencies.html#project-specific-dependencies)
-
-## How to work with Kedro and notebooks
-
-> Note: Using `kedro jupyter` or `kedro ipython` to run your notebook provides these variables in scope: `catalog`, `context`, `pipelines` and `session`.
->
-> Jupyter, JupyterLab, and IPython are already included in the project requirements by default, so once you have run `pip install -r requirements.txt` you will not need to take any extra steps before you use them.
-
-### Jupyter
-To use Jupyter notebooks in your Kedro project, you need to install Jupyter:
-
-```
-pip install jupyter
-```
-
-After installing Jupyter, you can start a local notebook server:
-
-```
-kedro jupyter notebook
-```
-
-### JupyterLab
-To use JupyterLab, you need to install it:
-
-```
-pip install jupyterlab
-```
-
-You can also start JupyterLab:
-
-```
-kedro jupyter lab
-```
-
-### IPython
-And if you want to run an IPython session:
-
-```
-kedro ipython
-```
-
-### How to ignore notebook output cells in `git`
-To automatically strip out all output cell contents before committing to `git`, you can use tools like [`nbstripout`](https://github.com/kynan/nbstripout). For example, you can add a hook in `.git/config` with `nbstripout --install`. This will run `nbstripout` before anything is committed to `git`.
-
-> *Note:* Your output cells will be retained locally.
-
-## Package your Kedro project
-
-[Further information about building project documentation and packaging your project](https://docs.kedro.org/en/stable/tutorial/package_a_project.html)
+Mettre en place les tests (pytest + kedro-test)
+Déployer la version production du modèle (API FastAPI, Docker)
+Surveiller en production (drift, alertes, ré‑entraînement automatique)

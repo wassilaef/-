@@ -1,25 +1,24 @@
-from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import preprocess_data, split_dataset, encode_features
-
+from kedro.pipeline import Pipeline, node
+from .nodes import preprocess_data, encode_features, split_dataset
 
 def create_pipeline(**kwargs) -> Pipeline:
     return Pipeline(
         [
             node(
-                func=preprocess_data,
-                inputs="primary",
+                preprocess_data,
+                inputs=["primary", "params:target_column"],
                 outputs="dataset",
-                name="clean_node",
+                name="preprocess_node",
             ),
             node(
-                func=encode_features,
+                encode_features,
                 inputs="dataset",
                 outputs="encoded_dataset",
                 name="encode_node",
             ),
             node(
-                func=split_dataset,
-                inputs=["encoded_dataset", "params:test_ratio"],
+                split_dataset,
+                inputs=["encoded_dataset", "params:test_ratio", "params:target_column"],  # <—
                 outputs=dict(
                     X_train="X_train",
                     X_test="X_test",

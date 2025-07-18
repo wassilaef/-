@@ -44,3 +44,11 @@ CONFIG_LOADER_ARGS = {
 # Class that manages the Data Catalog.
 # from kedro.io import DataCatalog
 # DATA_CATALOG_CLASS = DataCatalog
+from .hooks import MlflowHook
+
+HOOKS = (MlflowHook(),)
+
+
+import os, mlflow
+project_root = os.getcwd()
+mlflow.set_tracking_uri(f"file://{project_root}/mlruns")

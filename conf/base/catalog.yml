@@ -1,6 +1,10 @@
+
 primary:
   type: pandas.CSVDataset
   filepath: data/03_primary/primary.csv
+  load_args:
+    sep: ","             # ou "," selon ton fichier
+    engine: python
 
 dataset:
   type: pandas.CSVDataset
