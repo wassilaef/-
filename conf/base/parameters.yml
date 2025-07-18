@@ -1,6 +1,5 @@
 test_ratio: 0.2
 target_column: "Retard mensuel moyen à l'arrivée des vols exploités par la Cie sur la relation (min)"
-# conf/base/parameters.yml
 
 param_space:
   num_leaves:
@@ -24,25 +23,19 @@ param_space:
     args:
       - "n_estimators"
       - [50, 100, 200]
-# Ajoutez ceci à côté de param_space
+
+
 automl_max_evals: 100
 
-# conf/base/parameters.yml
 
-# Votre projet GCP
 gcp_project_id: "gen-lang-client-0456101191"
 
 
-
-# chemin local vers primary.csv
 primary_csv_path: "data/03_primary/primary.csv"
 
-# dossier où seront écrits les partitions
-# ici on réutilise le même paramètre que pour la suite
+
 gcs_primary_folder: "retard-avion-data/primary/data"
 
-
-# taille de chaque partition (nombre de lignes)
 partition_chunk_size: 1000
 
 
@@ -52,7 +45,7 @@ mlflow_experiment_id: 1 # Experimented ID associated to this project
 # MLflow
 log_to_mlflow: true                # active/désactive le tracking
 
-mlflow_server_uri: "http://127.0.0.1:5000/"  # ou la valeur de MLFLOW_SERVER
+mlflow_server_uri: "http://127.0.0.1:5000/" 
 
 
 experiment_id: "retard_avion_experiment"
