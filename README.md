@@ -1,40 +1,9 @@
 # retardavion
 Prédiction du retard mensuel moyen des vols
 Chaîne complète Kedro + MLflow : depuis le nettoyage des données jusqu’au versioning du modèle.
-📂 Structure du projet
 
-retardavion/
-├── conf/
-│   ├── base/
-│   │   ├── catalog.yml
-│   │   └── parameters.yml
-│   └── dev/  (configs spécifiques)
-├── data/
-│   ├── 03_primary/       # CSV brut
-│   └── 06_models/        # Sorties des pipelines
-│       ├── X_train.csv
-│       ├── X_test.csv
-│       ├── y_train.csv
-│       └── y_test.csv
-├── logs/                 # Fichiers de logs
-├── src/retardavion/
-│   ├── pipelines/
-│   │   ├── data_processing/
-│   │   │   ├── nodes.py
-│   │   │   └── pipeline.py
-│   │   └── data_training/
-│   │       ├── nodes.py
-│   │       └── pipeline.py
-│   ├── pipeline_registry.py
-│   └── __init__.py
-├── README.md
-└── pyproject.toml / requirements.txt
-🚀 Installation
 
-Cloner le dépôt
-git clone <url-du-repo>
-cd retardavion
-Créer et activer l’environnement
+#Créer et activer l’environnement
 python3 -m venv venv
 source venv/bin/activate
 Installer les dépendances
